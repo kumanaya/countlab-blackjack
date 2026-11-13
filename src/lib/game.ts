@@ -345,8 +345,20 @@ export class Game {
   }
 
   /** Rules change only between rounds. Returns false when not allowed now. */
+  /** Rules and bankroll can change whenever no hand is being played. */
+  canChangeRules() {
+    return !this.busy && (this.phase === 'bet' || this.phase === 'settle' || this.phase === 'quiz');
+  }
+
+  /** Clears a finished hand off the table so the next one starts under the new settings. */
+  private toBetPhase() {
+    if (this.phase === 'quiz') this.closeQuiz();
+    if (this.phase === 'settle') this.nextHand();
+  }
+
   setRules(patch: Partial<Rules>): boolean {
-    if (this.phase !== 'bet' || this.busy) return false;
+    if (!this.canChangeRules()) return false;
+    this.toBetPhase();
     const prev = this.rules;
     this.rules = { ...prev, ...patch };
     if (prev.decks !== this.rules.decks || prev.penetration !== this.rules.penetration) {
@@ -368,7 +380,8 @@ export class Game {
   }
 
   resetBankroll() {
-    if (this.phase !== 'bet') return;
+    if (!this.canChangeRules()) return;
+    this.toBetPhase();
     this.bankroll = START_BANKROLL;
     this.bet = Math.min(this.bet, this.bankroll);
     this.save();

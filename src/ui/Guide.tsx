@@ -124,7 +124,7 @@ export function Guide() {
   const g = getGame();
   const s = g.stats;
   const r = g.rules;
-  const locked = g.phase !== 'bet';
+  const locked = !g.canChangeRules();
   const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : '–');
   const row = (k: string, a: number, b: number) => [k, `${a}/${a + b}`, pct(a, a + b)];
 
@@ -207,7 +207,7 @@ export function Guide() {
 
               <section>
                 <h3>Table rules</h3>
-                {locked && <p className="note">Rules can change between hands.</p>}
+                {locked && <p className="note">Rules can change once this hand is over.</p>}
                 <Seg label="Decks" value={r.decks} options={[1, 2, 6, 8].map((v) => ({ v, t: String(v) }))} onChange={(v) => actions.setRules({ decks: v })} disabled={locked} />
                 <Seg
                   label="Penetration"

@@ -200,9 +200,11 @@ export const actions = {
   setRules(patch: Partial<Rules>) {
     const g = getGame();
     if (!g.setRules(patch)) {
-      toast('Rules change between hands');
+      toast('Finish the hand first');
       return;
     }
+    // a finished hand (and its count check) is cleared so the next deal uses the new rules
+    useUI.setState({ quizOpen: false });
     getSfx().click();
   },
   setQuality(q: Quality) {
@@ -226,11 +228,12 @@ export const actions = {
   },
   resetBankroll() {
     const g = getGame();
-    if (g.phase !== 'bet') {
+    if (!g.canChangeRules()) {
       toast('Finish the hand first');
       return;
     }
     g.resetBankroll();
+    useUI.setState({ quizOpen: false });
     toast('Bankroll reset');
   },
   openDrill(kind: 'countdown' | 'tc' | null) {
