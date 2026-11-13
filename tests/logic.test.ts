@@ -20,7 +20,8 @@ async function playRound(forceSplit: boolean) {
 
   if ((g.phase as string) === 'insurance') {
     results.insurance++;
-    await g.insurance(Math.random() < 0.5);
+    // insurance is refused when the bankroll can't cover it (the UI disables the button)
+    await g.insurance(g.bankroll >= g.insuranceCost() && Math.random() < 0.5);
   }
 
   let guard = 0;

@@ -6,7 +6,7 @@
 
 **A 3D blackjack table in the browser for practicing Hi-Lo card counting, basic strategy, index plays and bet ramps.**
 
-<!-- After deploying, add the live link here, e.g. [**Play now →**](https://your-app.vercel.app) -->
+### [▶ Play now: countlab-blackjack.vercel.app](https://countlab-blackjack.vercel.app)
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
