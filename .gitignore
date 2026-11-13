@@ -1,0 +1,22 @@
+# dependencies and builds
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# env and deploy
+.env*
+!.env.example
+.vercel
+
+# local tooling (Claude Code settings and installed skills)
+.claude/
+skills-lock.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
