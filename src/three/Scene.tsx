@@ -217,6 +217,8 @@ function HandLabels() {
     if (v.total > 21) cls.push('bust');
     else if (isBlackjack(s.cards)) cls.push('bj');
     if (s.resultTone) cls.push(s.resultTone);
+    // narrow screens: grow the tag inward from the table edge so it never clips
+    if (layout.portrait) cls.push(s.side === 1 ? 'edge-r' : 'edge-l');
     return (
       <Html key={`seat${s.id}`} position={seatSpot(layout, s.side).label} center zIndexRange={[10, 0]} pointerEvents="none">
         <div className={cls.join(' ')}>

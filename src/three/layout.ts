@@ -45,7 +45,8 @@ export function makeLayout(aspect: number): Layout {
       dealerGap: 0.4,
       shoe: [1.4, 0, -1.28],
       discard: [-1.4, 0, -1.28],
-      camera: { pos: [0, 3.7 * k, 3.5 * k], target: [0, 0, -0.3], fov: 46 },
+      // look past the table centre so the felt sits above the bottom controls
+      camera: { pos: [0, 3.9 * k, 3.3 * k], target: [0, 0, 0.35], fov: 46 },
     };
   }
   // screens narrower than 16:9 pull the camera back to fit the table
@@ -89,7 +90,9 @@ export function cardSlot(
   if (to === 'seat') {
     // `hand` carries the seat side (1 or −1)
     const sp = seatSpot(L, hand as 1 | -1);
-    const off = (index - (cardsInHand - 1) / 2) * L.fan * 0.8 * sp.scale;
+    // long hands squeeze together instead of spilling into the player's spot
+    const step = Math.min(L.fan * 0.8, 0.9 / Math.max(1, cardsInHand - 1));
+    const off = (index - (cardsInHand - 1) / 2) * step * sp.scale;
     const c = Math.cos(sp.yaw);
     const sn = Math.sin(sp.yaw);
     return {
@@ -99,18 +102,25 @@ export function cardSlot(
     };
   }
   if (to === 'dealer') {
-    const x = (index - (cardsInHand - 1) / 2) * L.dealerGap;
+    const x = (index - (cardsInHand - 1) / 2) * dealerStep(L, cardsInHand);
     return { pos: [x, y, L.dealerZ], yaw: jitter(id) * 0.025 };
   }
-  const fan = handCount >= 3 ? L.fan * 0.75 : L.fan;
+  // cap the spread of a long hand so it stays clear of the AI seats and other split hands
+  const span = handCount > 1 ? L.handSpacing * (handCount >= 4 ? 0.72 : handCount >= 3 ? 0.86 : 1) * 0.7 : L.portrait ? 1.0 : 1.8;
+  const fan = Math.min(handCount >= 3 ? L.fan * 0.75 : L.fan, span / Math.max(1, cardsInHand - 1));
   const x = handX(L, hand, handCount) + (index - (cardsInHand - 1) / 2) * fan;
   const z = L.playerZ - index * 0.05;
   return { pos: [x, y, z], yaw: jitter(id) * 0.05 };
 }
 
+/** Gap between dealer cards; a long dealer hand overlaps more so it stays on screen. */
+function dealerStep(L: Layout, cards: number) {
+  return Math.min(L.dealerGap, (L.portrait ? 1.2 : 2.6) / Math.max(1, cards - 1));
+}
+
 /** Dealer: left of the dealer's cards. Player: just above the hand (dealer side). */
 export function handLabelAnchor(L: Layout, to: 'player' | 'dealer', hand: number, handCount: number, cards = 2): Vec3 {
-  if (to === 'dealer') return [-((cards - 1) * L.dealerGap) / 2 - CARD.w / 2 - 0.42, 0.02, L.dealerZ];
+  if (to === 'dealer') return [-((cards - 1) * dealerStep(L, cards)) / 2 - CARD.w / 2 - 0.42, 0.02, L.dealerZ];
   return [handX(L, hand, handCount), 0.02, L.playerZ - CARD.h / 2 - 0.2];
 }
 
